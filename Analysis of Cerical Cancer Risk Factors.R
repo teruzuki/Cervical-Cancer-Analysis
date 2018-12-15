@@ -35,12 +35,15 @@ binaryPills <- c(MasterFile$`Hormonal Contraceptives`)
 yearPills <- c(MasterFile$`Hormonal Contraceptives (years)`)
 #All Cervical Cancer Diagnosis
 Cancer <- c(MasterFile$`Dx:Cancer`)
-#Cancer Subtypes
+#Cancer Disgnosis method
 CancerH <- c(MasterFile$`Hinselmann`)
 CancerS <- c(MasterFile$`Schiller`)
 CancerC <- c(MasterFile$`Citology`)
 CancerB <- c(MasterFile$`Biopsy`)
-
+summary(CancerH)
+summary(CancerS)
+summary(CancerC)
+summary(CancerB)
 #IUDs
 isIUD <- c(MasterFile$IUD)
 IUDyears <- c(MasterFile$`IUD (years)`)
@@ -75,17 +78,18 @@ MasterFile$`STDs:AIDS` <- NULL
 MasterFile$`STDs:cervical condylomatosis` <- NULL
 View(MasterFile)
 allCorrs <- round(cor(MasterFile, use='pairwise'),1)
-corrplot(allCorrs)
+corrplot(allCorrs, cor.method = "Spearman")
 View(allCorrs)
 #correlationMatrix <- data.frame(allCorrs)
 write.csv(allCorrs, 'Correlational Matrix.csv')
+summary(allCorrs)
 
 #narrowed down to variables: Main effector: HPV
 lmHPVCancer <- glm(Cancer~DxHPV, family = binomial)
 summary(lmHPVCancer)
 #plot(lmHPVCancer)
 
-ggplot(MasterFile, aes(x = DxHPV, y = Cancer))+ 
+HPV1 <- ggplot(MasterFile, aes(x = DxHPV, y = Cancer))+ 
          geom_point() +
          stat_smooth(method = "glm",
                      method.args = list(family = "binomial"),
@@ -93,7 +97,7 @@ ggplot(MasterFile, aes(x = DxHPV, y = Cancer))+
 #IUD
 lmIUDCancer <- glm(Cancer~isIUD, family = binomial)
 summary(lmIUDCancer)
-ggplot(MasterFile, aes(x = isIUD, y = Cancer))+ 
+IUD1 <- ggplot(MasterFile, aes(x = isIUD, y = Cancer))+ 
   geom_point() +
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
@@ -109,7 +113,7 @@ ggplot(MasterFile, aes(x = Pregnancies, y = Cancer))+
 #Smoking NS
 lmSmokeCancer <- glm(Cancer~binarySmoke, family = binomial)
 summary(lmSmokeCancer)
-ggplot(MasterFile, aes(x = binarySmoke, y = Cancer))+ 
+Smoking1 <- ggplot(MasterFile, aes(x = binarySmoke, y = Cancer))+ 
   geom_point() +
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
@@ -117,7 +121,7 @@ ggplot(MasterFile, aes(x = binarySmoke, y = Cancer))+
 #HIV NS
 lmHIVCancer <- glm(Cancer~STDhiv, family = binomial)
 summary(lmHIVCancer)
-ggplot(MasterFile, aes(x = STDhiv, y = Cancer))+ 
+HIV1 <- ggplot(MasterFile, aes(x = STDhiv, y = Cancer))+ 
   geom_point() +
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
@@ -138,6 +142,10 @@ ggplot(MasterFile, aes(x = binarySTD, y = Cancer))+
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
               col = "red")
+ggarrange(HPV1, IUD1, Smoking1, HIV1 + rremove("x.text"), 
+          labels = c("HPV", "IUD", "Smoking","HIV "),
+          ncol = 2, nrow = 2)
+
 
 #adding covariant
 
@@ -176,7 +184,7 @@ ggplot(MasterFile, aes(x = numSexPart, y = Cancer))+
               #method.args = list(family = "binomial"),
               col = "red")
 
-#for Cancer Subtype analysis: HPV
+#for Cancer diagnosis analysis: HPV
 lmHPVCancerH <- glm(CancerH~DxHPV, family = binomial)
 lmHPVCancerS <- glm(CancerS~DxHPV, family = binomial)
 lmHPVCancerC <- glm(CancerC~DxHPV, family = binomial)
@@ -186,27 +194,30 @@ summary(lmHPVCancerS)
 summary(lmHPVCancerC)
 summary(lmHPVCancerB)
 
-par(mfrow=c(2,2))
-ggplot(MasterFile, aes(x = DxHPV, y = CancerH))+ 
+#par(mfrow=c(2,2))
+HPVH <- ggplot(MasterFile, aes(x = DxHPV, y = CancerH))+ 
   geom_point() +
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
               col = "red")
-ggplot(MasterFile, aes(x = DxHPV, y = CancerS))+ 
+HPVS <- ggplot(MasterFile, aes(x = DxHPV, y = CancerS))+ 
   geom_point() +
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
               col = "red")
-ggplot(MasterFile, aes(x = DxHPV, y = CancerC))+ 
+HPVB <- ggplot(MasterFile, aes(x = DxHPV, y = CancerC))+ 
   geom_point() +
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
               col = "red")
-ggplot(MasterFile, aes(x = DxHPV, y = CancerB))+ 
+HPVC <- ggplot(MasterFile, aes(x = DxHPV, y = CancerB))+ 
   geom_point() +
   stat_smooth(method = "glm",
               method.args = list(family = "binomial"),
               col = "red")
+ggarrange(HPVH, HPVS, HPVC, HPVB + rremove("x.text"), 
+          labels = c("Hinselmann", "Schiller", "Citology","Biopsy "),
+          ncol = 2, nrow = 2)
 
 #for Cancer Subtype analysis: IUD
 lmIUDCancerH <- glm(CancerH~isIUD, family = binomial)
@@ -218,24 +229,27 @@ summary(lmIUDCancerH)
 summary(lmIUDCancerS)
 summary(lmIUDCancerC)
 summary(lmIUDCancerB)
+IUDH <- ggplot(MasterFile, aes(x = isIUD, y = CancerH))+ 
+  geom_point() +
+  stat_smooth(method = "glm",
+              method.args = list(family = "binomial"),
+              col = "red")
+IUDS <- ggplot(MasterFile, aes(x = isIUD, y = CancerS))+ 
+  geom_point() +
+  stat_smooth(method = "glm",
+              method.args = list(family = "binomial"),
+              col = "red")
+IUDC <- ggplot(MasterFile, aes(x = isIUD, y = CancerC))+ 
+  geom_point() +
+  stat_smooth(method = "glm",
+              method.args = list(family = "binomial"),
+              col = "red")
+IUDB <- ggplot(MasterFile, aes(x = isIUD, y = CancerB))+ 
+  geom_point() +
+  stat_smooth(method = "glm",
+              method.args = list(family = "binomial"),
+              col = "red")
 
-ggplot(MasterFile, aes(x = isIUD, y = CancerH))+ 
-  geom_point() +
-  stat_smooth(method = "glm",
-              method.args = list(family = "binomial"),
-              col = "red")
-ggplot(MasterFile, aes(x = isIUD, y = CancerS))+ 
-  geom_point() +
-  stat_smooth(method = "glm",
-              method.args = list(family = "binomial"),
-              col = "red")
-ggplot(MasterFile, aes(x = isIUD, y = CancerC))+ 
-  geom_point() +
-  stat_smooth(method = "glm",
-              method.args = list(family = "binomial"),
-              col = "red")
-ggplot(MasterFile, aes(x = isIUD, y = CancerB))+ 
-  geom_point() +
-  stat_smooth(method = "glm",
-              method.args = list(family = "binomial"),
-              col = "red")
+ggarrange(IUDH, IUDS, IUDC, IUDB + rremove("x.text"), 
+          labels = c("Hinselmann", "Schiller", "Citology","Biopsy "),
+          ncol = 2, nrow = 2)
