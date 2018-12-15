@@ -1,5 +1,5 @@
 # Cervical-Cancer-Analysis
-- Independent Project for Biostatatistics
+- Independent Project for Biostatistics
 ### Directory ###
 1. Raw Data:	risk_factors_cervical_cancer.csv
 2. Analysis Data:	risk_factors_cervical_cancer_Tidy.cs
